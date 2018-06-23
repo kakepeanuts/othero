@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 //#include <windows.h>
@@ -13,6 +13,75 @@ typedef struct {
 	int y;
 	int num;
 }information;
+
+void DISCcount(char p[][N + 2], int *countX, int *countO); 
+void disp(char p[][N + 2]);
+int setpos(int y, int x, char c, char p[][N + 2], int on);
+int humanset(int *y, int *x, char c, char p[][N + 2]);
+int pcset(int *y, int *x, char c, char p[][N + 2]);
+void reset(char p[][N + 2]);
+void referee(char player, int countX, int countO);
+
+int main(void) {
+	char p[N + 2][N + 2];
+	int x, y, passcount = 0, countX, countO;
+	char c = 'X', pc, player;
+
+	reset(p);
+	printf("※X = first.\n");
+	printf("(X or O): ");
+	scanf("%c", &player);
+	if (player == 'X')
+		pc = 'O';
+	else
+		pc = 'X';
+	printf("\n");
+
+	while (true) {
+		if (c == player) {
+			printf("-----------PLAYER-SIDE(%c)-----------\n\n", c);
+			disp(p);
+			printf("\n");
+
+			if (humanset(&y, &x, player, p) == 1) {		//置く場所があった場合
+				passcount = 0;
+				c = pc;
+			}
+			else {		//置く場所がなかった場合
+				passcount++;
+				printf("Player Pass...\n\n");
+				sleep(1);
+				c = pc;
+				if (passcount == 2)		//2回連続パスのとき
+					break;
+			}
+		}
+		else if (c == pc) {
+			printf("-------------PC-SIDE(%c)-------------\n\n", c);
+			disp(p);
+			printf("\n");
+
+			if (pcset(&y, &x, pc, p) == 1) {		//置く場所があった場合
+				passcount = 0;
+				c = player;
+			}
+			else {		//置く場所がなかった場合
+				passcount++;
+				printf("PC Pass...\n\n");
+				sleep(1);
+				c = player;
+				if (passcount == 2)		//2回連続パスのとき
+					break;
+			}
+		}
+	}
+
+	DISCcount(p, &countX, &countO);
+	referee(player, countX, countO);
+
+	return 0;
+}
+
 
 //盤面の石の数をカウントする関数
 void DISCcount(char p[][N + 2], int *countX, int *countO) {
@@ -231,64 +300,4 @@ void referee(char player, int countX, int countO) {
 			printf("DRAW!\n");
 		}
 	}
-}
-
-int main(void) {
-	char p[N + 2][N + 2];
-	int on = 0, x, y, count = 0, passcount = 0, countX, countO;
-	char c = 'X', pc, player;
-
-	reset(p);
-	printf("※X = first.\n");
-	printf("(X or O): ");
-	scanf("%c", &player);
-	if (player == 'X')
-		pc = 'O';
-	else
-		pc = 'X';
-	printf("\n");
-
-	while (true) {
-		if (c == player) {
-			printf("-----------PLAYER-SIDE(%c)-----------\n\n", c);
-			disp(p);
-			printf("\n");
-
-			if (humanset(&y, &x, player, p) == 1) {		//置く場所があった場合
-				passcount = 0;
-				c = pc;
-			}
-			else {		//置く場所がなかった場合
-				passcount++;
-				printf("Player Pass...\n\n");
-				sleep(1);
-				c = pc;
-				if (passcount == 2)		//2回連続パスのとき
-					break;
-			}
-		}
-		else if (c == pc) {
-			printf("-------------PC-SIDE(%c)-------------\n\n", c);
-			disp(p);
-			printf("\n");
-
-			if (pcset(&y, &x, pc, p) == 1) {		//置く場所があった場合
-				passcount = 0;
-				c = player;
-			}
-			else {		//置く場所がなかった場合
-				passcount++;
-				printf("PC Pass...\n\n");
-				sleep(1);
-				c = player;
-				if (passcount == 2)		//2回連続パスのとき
-					break;
-			}
-		}
-	}
-
-	DISCcount(p, &countX, &countO);
-	referee(player, countX, countO);
-
-	return 0;
 }
